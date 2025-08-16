@@ -300,12 +300,12 @@
     async function cargarRemoto(){
       if(productos.length>0) return; // ya tenemos datos (migrados o LS)
       try{
-        const r1 = await fetch('catalogos.json',{cache:'no-store'});
+        const r1 = await fetch('https://raw.githubusercontent.com/Sekai17/corona-store/refs/heads/main/catalogo.json?ts='+Date.now(), {cache:'no-store'});
         if(r1.ok){ const data = await r1.json(); if(Array.isArray(data) && data.length && (data[0].productos || typeof data[0].nombre==='string')){ catalogos = data.map(c=>({nombre: sanitizeStr(c.nombre)||'Catálogo', productos: Array.isArray(c.productos)?c.productos:[]})); selCat=0; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); return }
         }
       }catch{}
       try{
-        const r2 = await fetch('catalogo.json',{cache:'no-store'});
+        const r2 = await fetch('https://raw.githubusercontent.com/Sekai17/corona-store/refs/heads/main/catalogo.json?ts='+Date.now(), {cache:'no-store'})
         if(r2.ok){ const arr = await r2.json(); if(Array.isArray(arr)){ catalogos=[{nombre:'General', productos:arr}]; selCat=0; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); return } }
       }catch{}
     }
