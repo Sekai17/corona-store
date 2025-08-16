@@ -1,39 +1,401 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>La Emperatriz</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADM Tienda Lite</title>
   <style>
-    body {
-      background: #ffe6f0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
+    :root{--pink:#e91e63;--pink-dark:#c2185b;--rose:#ffeef5;--ink:#333}
+    body{font-family:'Segoe UI',system-ui,Arial,sans-serif;margin:0;background:var(--rose);color:var(--ink)}
+    header{background:var(--pink);color:#fff;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    header h1{margin:0;font-size:1.6rem}
+    header .right{display:flex;gap:.5rem;align-items:center}
+    select, input, textarea, button{font:inherit}
+    main{padding:2rem;max-width:1200px;margin:auto}
+
+    .guia{background:#fff;padding:1rem 1.2rem;margin-bottom:1rem;border-left:5px solid var(--pink);border-radius:.8rem;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+    .guia h2{margin:.2rem 0 .6rem;color:var(--pink)}
+    .guia ul{margin:.2rem 0 0;padding-left:1.2rem}
+    .help{margin:.6rem 0 0;font-size:.9rem;background:#fff7fb;border:1px dashed #f8bbd0;padding:.6rem .8rem;border-radius:.6rem}
+
+    /* ---- Barra de Catálogos (responsive, sin solaparse) ---- */
+    .catalogBar{background:#fff;border:2px solid #f8bbd0;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding:1rem;border-radius:.8rem;margin-bottom:1rem;position:relative;overflow:hidden}
+    .catalogBar .grow{display:flex;gap:.5rem;align-items:center;flex:1 1 260px;min-width:0}
+    .catalogBar > *{flex:1 1 220px}
+    .catalogBar .grow:last-child{flex:0 0 auto;justify-content:flex-end}
+    .catalogBar select{background:#fff}
+    .catalogBar .btn{height:38px;white-space:nowrap}
+    .tag{background:#fde7f1;color:#880e4f;padding:.15rem .5rem;border-radius:999px;font-size:.8rem;flex:0 0 auto}
+
+    @media (max-width:680px){
+      #renCatalog,#delCatalog{width:48%}
+      .catalogBar .grow:last-child{width:100%;justify-content:space-between}
     }
-    h1 { color: #d81b60; }
-    a {
-      display: block;
-      margin: 10px;
-      padding: 15px 25px;
-      text-decoration: none;
-      background: #d81b60;
-      color: #fff;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    a:hover { background: #ad1457; }
+
+    form#productForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.2rem;background:#fff;padding:1.2rem;border-radius:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.08);border:2px solid #f8bbd0}
+    input,textarea,select{padding:.6rem;border:1px solid #d0d0d0;border-radius:.6rem;width:100%;outline:0}
+    input:focus,textarea:focus,select:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(233,30,99,.15)}
+    textarea{grid-column:1/-1;min-height:60px;resize:vertical}
+    .row{display:flex;gap:.5rem;align-items:center}
+    .mini{font-size:.85rem;opacity:.8}
+
+    .preview{grid-column:1/-1;display:flex;gap:1rem;align-items:center}
+    .preview img{width:72px;height:72px;object-fit:cover;border-radius:.6rem;border:1px solid #eee;background:#fff}
+    .preview .ph{width:72px;height:72px;display:grid;place-items:center;border-radius:.6rem;border:1px dashed #ddd;color:#999;background:#fff}
+
+    .controls{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}
+    .controls input,.controls select{background:#fff}
+
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    thead th{background:#fce4ec;color:#880e4f;padding:.7rem .8rem;text-align:left}
+    tbody td{background:#fff;border:1px solid #eee;border-left:0;border-right:0;padding:.7rem .8rem;vertical-align:top}
+    tbody tr{border-radius:.8rem;box-shadow:0 0 0 rgba(0,0,0,0)}
+    tbody tr td:first-child{border-left:1px solid #eee;border-top-left-radius:.8rem;border-bottom-left-radius:.8rem}
+    tbody tr td:last-child{border-right:1px solid #eee;border-top-right-radius:.8rem;border-bottom-right-radius:.8rem}
+    tbody tr:hover{background:#fff0f6;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+
+    .thumb{display:flex;align-items:center;gap:.6rem;cursor:pointer}
+    .thumb img{width:48px;height:48px;object-fit:cover;border-radius:.6rem;border:1px solid #eee;background:#fff}
+    .thumb .ph{width:48px;height:48px;display:grid;place-items:center;border-radius:.6rem;border:1px dashed #ddd;color:#999;background:#fff}
+
+    button.primary{background:var(--pink);color:#fff;border:0;border-radius:.6rem;padding:.7rem 1.1rem;cursor:pointer;transition:transform .15s,filter .15s}
+    button.primary:hover{filter:brightness(.95)}
+    button.primary:active{transform:scale(.98)}
+    .btn{background:#9c27b0;color:#fff;border:0;border-radius:.6rem;padding:.6rem 1rem;cursor:pointer}
+    .btn.gray{background:#6b7280}
+    .btn.green{background:#10b981}
+    .btn.red{background:#ef4444}
+
+    .utils{margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap}
+
+    #toast{position:fixed;right:14px;bottom:14px;display:grid;gap:8px;z-index:30}
+    .toast{background:#101114;color:#fff;padding:.7rem 1rem;border-radius:.8rem;box-shadow:0 12px 40px rgba(0,0,0,.25);opacity:.98}
+
+    th.sort{cursor:pointer;user-select:none}
+    th.sort .arrow{opacity:.6;margin-left:.3rem}
+
+    /* Modal */
+    #modal{position:fixed;inset:0;background:rgba(16,17,20,.45);display:none;align-items:center;justify-content:center;z-index:60}
+    #modal .card{background:#fff;border-radius:.8rem;box-shadow:0 14px 50px rgba(0,0,0,.25);padding:1rem;display:grid;gap:.6rem;width:min(96vw,720px)}
+    #modal .top{display:flex;align-items:center;justify-content:space-between}
+    #modal img{width:100%;max-height:60vh;object-fit:contain;border-radius:.6rem;background:#fff}
+    #closeModal{background:#ef4444;border:0;color:#fff;padding:.4rem .6rem;border-radius:.6rem;cursor:pointer}
   </style>
 </head>
 <body>
-  <h1>👑 Bienvenido a La Emperatriz</h1>
-  <!-- ✅ carpetas en minúsculas -->
-  <a href="tienda/">🛍️ Entrar a la Tienda</a>
-  <a href="adm/">⚙️ Entrar al Panel Admin</a>
+  <header>
+    <h1 id="t_title">Panel Administrativo · Tienda</h1>
+    <div class="right">
+      <label class="mini" for="lang">🌐</label>
+      <select id="lang">
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+  </header>
+  <main>
+    <!-- Barra de selección y gestión de Catálogos (sin botón Añadir aquí) -->
+    <section class="catalogBar" aria-label="Gestión de catálogos">
+      <div class="grow">
+        <label class="mini" for="catalogoSel" id="t_catalog_lbl">Catálogo:</label>
+        <select id="catalogoSel"></select>
+        <span class="tag" id="catStats">0 productos</span>
+      </div>
+      <div class="grow" style="justify-content:flex-end;gap:.4rem">
+        <button type="button" class="btn gray" id="renCatalog">✏️ <span id="t_ren_catalog">Renombrar</span></button>
+        <button type="button" class="btn red" id="delCatalog">🗑️ <span id="t_del_catalog">Borrar</span></button>
+      </div>
+    </section>
+
+    <section class="guia" id="guide">
+      <h2 id="t_guide">Guía rápida</h2>
+      <ul>
+        <li id="t_g1">Completa el formulario y presiona Guardar.</li>
+        <li id="t_g2">Usa Editar para cambiar precio/stock/info.</li>
+        <li id="t_g3">Borrar elimina el producto.</li>
+        <li id="t_g4">Exporta/Importa el catálogo abajo.</li>
+      </ul>
+      <div class="help" id="help_formats">
+        <b>¿Qué es JSON y CSV?</b><br/>
+        <b>JSON</b> = copia exacta del catálogo para volver a <i>Importar</i> más tarde.<br/>
+        <b>CSV</b> = tabla compatible con Excel, Google Sheets y similares.
+      </div>
+      <div class="help" id="help_catalog_category">
+        <b>Catálogo</b> = conjunto de productos (p.ej. "Verano 2025"). <b>Categoría</b> = etiqueta del producto (p.ej. "Ropa").
+      </div>
+    </section>
+
+    <form id="productForm">
+      <input type="hidden" id="editIndex" />
+      <input type="text" id="nombre" placeholder="Nombre" required />
+      <div class="row">
+        <select id="categoria"></select>
+        <input id="newCat" type="text" placeholder="Nueva categoría (opcional)" />
+        <button type="button" class="btn" id="addCat" title="Añadir categoría">➕</button>
+      </div>
+      <!-- Precio con máscara y nombre de magnitud -->
+      <input type="text" id="precio" placeholder="Precio" inputmode="decimal" autocomplete="off" required />
+      <div class="mini" id="precioHint" aria-live="polite"></div>
+      <input type="number" id="stock" placeholder="Stock" min="0" step="1" required />
+      <input type="text" id="imagen" placeholder="URL Imagen" />
+      <div class="preview" id="prevBox">
+        <div class="ph" id="prevPh">Sin vista previa</div>
+        <img id="prevImg" alt="preview" style="display:none" />
+        <span class="mini" id="prevMsg"></span>
+      </div>
+      <textarea id="descripcion" placeholder="Descripción"></textarea>
+      <button type="submit" class="primary" style="grid-column:1/-1" id="t_save">Guardar Producto</button>
+    </form>
+
+    <div class="controls">
+      <input id="buscar" type="text" placeholder="Buscar por nombre..." />
+      <select id="filtraCategoria"><option value="">Todas las categorías</option></select>
+    </div>
+
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th class="sort" data-k="nombre">Nombre <span class="arrow">↕</span></th>
+          <th class="sort" data-k="categoria">Categoría <span class="arrow">↕</span></th>
+          <th class="sort" data-k="precio">Precio <span class="arrow">↕</span></th>
+          <th class="sort" data-k="stock">Stock <span class="arrow">↕</span></th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="utils">
+      <button class="btn green" id="btnAddCat" title="Crear un catálogo nuevo">➕ Nuevo catálogo</button>
+      <button class="btn" id="btnExCat" title="Guarda este catálogo para importarlo luego">⬇️ <span id="t_export_json">Exportar Catálogo (JSON)</span></button>
+      <button class="btn gray" id="btnExAll" title="Guarda todos los catálogos en un solo archivo">⬇️ <span id="t_export_all">Exportar Todos</span></button>
+      <button class="btn gray" id="t_export_csv_btn" title="Abre en Excel / Google Sheets">⬇️ <span id="t_export_csv">Exportar CSV</span></button>
+      <button class="btn red" id="btnVaciar" title="Vacía sólo el catálogo seleccionado">🧹 <span id="t_clear">Vaciar catálogo</span></button>
+      <label for="importFile" class="btn" title="Cargar un archivo JSON exportado">⬆️ <span id="t_import">Importar JSON</span></label>
+      <input type="file" id="importFile" accept="application/json" style="display:none" />
+    </div>
+  </main>
+
+  <div id="modal" aria-hidden="true">
+    <div class="card">
+      <div class="top">
+        <h3 id="m_title" style="margin:.2rem 0"></h3>
+        <button id="closeModal">✕</button>
+      </div>
+      <img id="m_img" alt="imagen" />
+      <div class="mini" id="m_meta"></div>
+      <p id="m_desc" style="margin:.2rem 0 0"></p>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ---------- Estado base ----------
+    const LS_LEGACY='admLite_catalogo'; // productos legacy (1 catálogo)
+    const LS_CATS='admLite_catalogos'; // lista de catálogos [{nombre, productos:[] }]
+    const LS_SEL='admLite_sel';        // índice seleccionado
+
+    const DEFAULT_CATS=['Ropa','Accesorios','Belleza','Hogar','Otros'];
+
+    let catalogos=[];   // array de catálogos
+    let selCat=0;       // índice de catálogo seleccionado
+    let productos=[];   // alias a catalogos[selCat].productos
+    let sortBy=null,sortDir=1; let lang='es';
+
+    // ---------- I18N ----------
+    const i18n={
+      es:{
+        title:'Panel Administrativo · Tienda',guide:'Guía rápida',g1:'Completa el formulario y presiona Guardar.',g2:'Usa Editar para cambiar precio/stock/info.',g3:'Borrar elimina el producto.',g4:'Exporta/Importa el catálogo abajo.',save:'Guardar Producto',
+        exJson:'Exportar Catálogo (JSON)', exAll:'Exportar Todos', exCsv:'Exportar CSV', clear:'Vaciar catálogo', import:'Importar JSON',
+        search:'Buscar por nombre...', allCat:'Todas las categorías', hintLabel:'Se interpretará como ',
+        catLbl:'Catálogo:', addCat:'Añadir catálogo', renCat:'Renombrar', delCat:'Borrar',
+        toastExists:'Ya existe un catálogo con ese nombre', toastAdded:'Catálogo añadido', toastRenamed:'Catálogo renombrado', toastDeleted:'Catálogo borrado', toastNeedAnother:'Debe quedar al menos un catálogo',
+        confirmDeleteCat:'¿Borrar este catálogo? Se eliminarán sus productos.',
+      },
+      en:{
+        title:'Admin Panel · Store',guide:'Quick guide',g1:'Fill the form and press Save.',g2:'Use Edit to change price/stock/info.',g3:'Delete removes the product.',g4:'Export/Import catalog below.',save:'Save Product',
+        exJson:'Export Catalog (JSON)', exAll:'Export All', exCsv:'Export CSV', clear:'Clear catalog', import:'Import JSON',
+        search:'Search by name...', allCat:'All categories', hintLabel:'Will be treated as ',
+        catLbl:'Catalog:', addCat:'Add catalog', renCat:'Rename', delCat:'Delete',
+        toastExists:'A catalog with that name already exists', toastAdded:'Catalog added', toastRenamed:'Catalog renamed', toastDeleted:'Catalog deleted', toastNeedAnother:'At least one catalog must remain',
+        confirmDeleteCat:'Delete this catalog? Its products will be removed.',
+      }
+    };
+
+    function applyI18n(){const t=i18n[lang];
+      document.getElementById('t_title').textContent=t.title;
+      document.getElementById('t_guide').textContent=t.guide;
+      document.getElementById('t_g1').textContent=t.g1;
+      document.getElementById('t_g2').textContent=t.g2;
+      document.getElementById('t_g3').textContent=t.g3;
+      document.getElementById('t_g4').textContent=t.g4;
+      document.getElementById('t_save').textContent=t.save;
+      document.getElementById('t_export_json').textContent=t.exJson;
+      document.getElementById('t_export_all').textContent=t.exAll;
+      document.getElementById('t_export_csv').textContent=t.exCsv;
+      document.getElementById('t_clear').textContent=t.clear;
+      document.getElementById('t_import').textContent=t.import;
+      document.getElementById('buscar').placeholder=t.search;
+      document.querySelector('#filtraCategoria option[value=""]').textContent=t.allCat;
+      document.getElementById('t_catalog_lbl').textContent=t.catLbl;
+      document.getElementById('t_ren_catalog').textContent=t.renCat;
+      document.getElementById('t_del_catalog').textContent=t.delCat;
+    }
+
+    // ---------- Toast & helpers ----------
+    function toast(msg){const c=document.getElementById('toast');const el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(()=>{el.style.opacity=.0;setTimeout(()=>el.remove(),240)},1600)}
+    function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+    function sanitizeStr(s){return String(s??'').replace(/<[^>]*>/g,'').trim()}
+    function safeUrl(u){try{const x=new URL(String(u));if(x.protocol==='http:'||x.protocol==='https:')return x.href}catch{}return ''}
+
+    // ---------- Persistencia ----------
+    function saveLS(){try{localStorage.setItem(LS_CATS,JSON.stringify(catalogos));localStorage.setItem(LS_SEL,String(selCat))}catch{}}
+    function loadLS(){
+      try{
+        const rawCats=localStorage.getItem(LS_CATS);
+        const rawSel=localStorage.getItem(LS_SEL);
+        if(rawCats){catalogos=JSON.parse(rawCats)||[]}else{catalogos=[]}
+        if(typeof rawSel==='string') selCat=Math.max(0,Math.min(Number(rawSel)||0,(catalogos.length||1)-1));
+      }catch{catalogos=[];selCat=0}
+      // migración desde legacy
+      try{
+        if((!catalogos || catalogos.length===0)){
+          const legacy=localStorage.getItem(LS_LEGACY);
+          if(legacy){
+            const productosLegacy = JSON.parse(legacy)||[];
+            catalogos=[{nombre:'General', productos: Array.isArray(productosLegacy)?productosLegacy:[]}];
+            localStorage.removeItem(LS_LEGACY);
+            saveLS();
+          }
+        }
+      }catch{}
+      if(!catalogos || catalogos.length===0){catalogos=[{nombre:'General', productos:[]}]; selCat=0; saveLS();}
+      linkProductos();
+    }
+    function linkProductos(){productos = catalogos[selCat].productos}
+
+    // ---------- Moneda / Número ----------
+    const FX={ es:{ locale:'es-AR', currency:'ARS' }, en:{ locale:'en-US', currency:'USD' } };
+    function fmtCurrency(n){const {locale,currency}=FX[lang]||FX.es;try{return new Intl.NumberFormat(locale,{style:'currency',currency,minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0)}catch{return '$'+Number(n||0).toFixed(2)}}
+    function fmtDecimal(n){const {locale}=FX[lang]||FX.es;try{return new Intl.NumberFormat(locale,{style:'decimal',useGrouping:true,minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0)}catch{return String(Number(n||0).toFixed(2))}}
+    function parseFlexibleNumber(str){let x=String(str||'').trim();if(!x)return 0; x=x.replace(/[^0-9,\.\-]/g,''); const hasC=x.includes(','),hasD=x.includes('.'); if(hasC && hasD){const p=Math.max(x.lastIndexOf(','),x.lastIndexOf('.'));const i=x.slice(0,p).replace(/[.,]/g,'');const d=x.slice(p+1).replace(/[^0-9]/g,'');x=i+'.'+d} else if(hasC && !hasD){x=x.replace(/\./g,'');x=x.replace(',','.')} else {x=x.replace(/,/g,'')} const n=Number(x); return isNaN(n)||n<0?0:n; }
+    function round1(v){return Math.round(v*10)/10}
+    function humanName(n, lng=lang){ const abs=Math.abs(n); const sign=n<0?'-':''; const dec=(v)=>{const s=round1(v).toString(); return lng==='es'? s.replace('.',','):s}; if(abs<1_000){return sign+fmtDecimal(abs)} if(abs<1_000_000){const v=abs/1_000; if(lng==='es'){ if(Math.abs(v-1)<1e-9) return sign+'mil'; return sign+dec(v)+' mil'; } else { return sign+dec(v)+' thousand'; }} if(abs<1_000_000_000){const v=abs/1_000_000; if(lng==='es'){return sign+dec(v)+' '+(Math.abs(v-1)<1e-9?'millón':'millones')} else {return sign+dec(v)+' '+(Math.abs(v-1)<1e-9?'million':'millions')}} if(abs<1_000_000_000_000){const v=abs/1_000_000_000; if(lng==='es'){return sign+dec(v)+' mil millones'} else {return sign+dec(v)+' billion'}} const v=abs/1_000_000_000_000; if(lng==='es'){return sign+dec(v)+' billones'} else {return sign+dec(v)+' trillion'} }
+
+    function updatePrecioHint(formatInput=false){const el=document.getElementById('precio');const hint=document.getElementById('precioHint');const v=el.value;if(!v.trim()){hint.textContent='';return}const n=parseFlexibleNumber(v);if(formatInput){el.value=fmtDecimal(n)}const label=i18n[lang].hintLabel;hint.textContent=label+fmtCurrency(n)+' — '+humanName(n,lang)}
+    function setupPrecioField(){const el=document.getElementById('precio');el.addEventListener('input',()=>updatePrecioHint(false));el.addEventListener('blur',()=>updatePrecioHint(true));}
+
+    // ---------- UI Catálogos ----------
+    function fillCatalogSel(){const sel=document.getElementById('catalogoSel'); sel.innerHTML = catalogos.map((c,i)=>`<option value="${i}">${esc(c.nombre)}</option>`).join(''); sel.value=String(selCat); updateCatStats();}
+    function updateCatStats(){const tag=document.getElementById('catStats'); tag.textContent = `${productos.length} ${lang==='es'?'productos':'items'}`}
+
+    function addCatalog(nameFromPrompt){ const name = sanitizeStr(nameFromPrompt||'') || `Catálogo ${catalogos.length+1}`; if(catalogos.some(c=>c.nombre.toLowerCase()===name.toLowerCase())){toast(i18n[lang].toastExists);return} catalogos.push({nombre:name, productos:[]}); selCat=catalogos.length-1; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); toast(i18n[lang].toastAdded); }
+    function renameCatalog(){ const name = prompt(i18n[lang].renCat||'Renombrar', catalogos[selCat].nombre); const v=sanitizeStr(name||''); if(!v) return; if(catalogos.some((c,i)=>i!==selCat && c.nombre.toLowerCase()===v.toLowerCase())){toast(i18n[lang].toastExists);return} catalogos[selCat].nombre=v; saveLS(); fillCatalogSel(); toast(i18n[lang].toastRenamed); }
+    function deleteCatalog(){ if(catalogos.length<=1){toast(i18n[lang].toastNeedAnother);return} if(!confirm(i18n[lang].confirmDeleteCat))return; catalogos.splice(selCat,1); selCat=Math.max(0,selCat-1); linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); toast(i18n[lang].toastDeleted); }
+    function selectCatalog(i){ selCat = Math.max(0, Math.min(Number(i)||0, catalogos.length-1)); linkProductos(); saveLS(); render(); fillFilters(); }
+
+    // ---------- Catálogos remotos (opcional) ----------
+    async function cargarRemoto(){
+      if(productos.length>0) return; // ya tenemos datos (migrados o LS)
+      try{
+        const r1 = await fetch('catalogos.json',{cache:'no-store'});
+        if(r1.ok){ const data = await r1.json(); if(Array.isArray(data) && data.length && (data[0].productos || typeof data[0].nombre==='string')){ catalogos = data.map(c=>({nombre: sanitizeStr(c.nombre)||'Catálogo', productos: Array.isArray(c.productos)?c.productos:[]})); selCat=0; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); return }
+        }
+      }catch{}
+      try{
+        const r2 = await fetch('catalogo.json',{cache:'no-store'});
+        if(r2.ok){ const arr = await r2.json(); if(Array.isArray(arr)){ catalogos=[{nombre:'General', productos:arr}]; selCat=0; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); return } }
+      }catch{}
+    }
+
+    // ---------- Categorías ----------
+    function fillCats(){const set=new Set([...DEFAULT_CATS,...productos.map(p=>p.categoria).filter(Boolean)]);const catSel=document.getElementById('categoria');catSel.innerHTML='<option value="">Seleccionar Categoría</option>'+[...set].map(c=>`<option>${esc(c)}</option>`).join('')}
+    function fillFilters(){const set=new Set(productos.map(p=>p.categoria).filter(Boolean));const f=document.getElementById('filtraCategoria');f.innerHTML=`<option value="">${i18n[lang].allCat}</option>`+[...set].map(c=>`<option>${esc(c)}</option>`).join('')}
+
+    // ---------- Render de tabla ----------
+    function render(){fillCats(); const term=document.getElementById('buscar').value.trim().toLowerCase(); const fcat=document.getElementById('filtraCategoria').value; let rows=productos.filter(p=>{const hit=(p.nombre||'').toLowerCase().includes(term);const catOk=!fcat||p.categoria===fcat;return hit&&catOk}); if(sortBy){rows=rows.slice().sort((a,b)=>{let A=a[sortBy],B=b[sortBy];if(typeof A==='string')A=A.toLowerCase();if(typeof B==='string')B=B.toLowerCase();return (A>B?1:A<B?-1:0)*sortDir})}
+      const tb=document.querySelector('#productTable tbody'); tb.innerHTML=''; rows.forEach((p)=>{const tr=document.createElement('tr'); const idx=productos.indexOf(p); tr.dataset.idx=String(idx); tr.innerHTML=`
+        <td class="thumb"><div class="ph">🖼️</div><img class="im" style="display:none" alt="thumb"/></td>
+        <td>${esc(p.nombre)}</td>
+        <td>${esc(p.categoria||'')}</td>
+        <td><div>${fmtCurrency(p.precio)}</div><div class="mini">${humanName(p.precio,lang)}</div></td>
+        <td>${Number(p.stock||0)}</td>
+        <td class="actions"><button class="btn green" data-k="ed">✏️</button><button class="btn red" data-k="rm">🗑️</button></td>`;
+        const imEl=tr.querySelector('.im'); const phEl=tr.querySelector('.ph'); const u=safeUrl(p.imagen); if(u){imEl.referrerPolicy='no-referrer'; imEl.onload=()=>{phEl.style.display='none'; imEl.style.display='block'}; imEl.onerror=()=>{imEl.style.display='none'; phEl.style.display='grid'}; imEl.src=u} else {imEl.style.display='none'; phEl.style.display='grid'}
+        tr.addEventListener('click',ev=>{if(ev.target.closest('button'))return; showModal(idx)});
+        tr.querySelector('[data-k="ed"]').addEventListener('click',()=>editar(idx));
+        tr.querySelector('[data-k="rm"]').addEventListener('click',()=>borrar(idx));
+        tb.appendChild(tr)});
+      updateCatStats();
+    }
+
+    // ---------- Acciones CRUD ----------
+    document.getElementById('productForm').addEventListener('submit',e=>{e.preventDefault();const idx=document.getElementById('editIndex').value;let precio=parseFlexibleNumber(document.getElementById('precio').value);let stock=parseInt(document.getElementById('stock').value);precio=isNaN(precio)||precio<0?0:precio;stock=isNaN(stock)||stock<0?0:stock;const nuevo={nombre:sanitizeStr(document.getElementById('nombre').value),categoria:sanitizeStr(document.getElementById('categoria').value),precio:+precio.toFixed(2),stock:stock,imagen:sanitizeStr(document.getElementById('imagen').value),descripcion:sanitizeStr(document.getElementById('descripcion').value)};if(!nuevo.nombre){toast('Nombre requerido');return}if(idx===''){productos.push(nuevo);toast('Guardado')}else{productos[idx]=nuevo;toast('Actualizado')}e.target.reset();document.getElementById('editIndex').value='';document.getElementById('prevImg').style.display='none';document.getElementById('prevPh').style.display='grid';document.getElementById('prevMsg').textContent='';document.getElementById('precioHint').textContent='';saveLS();render();fillFilters()});
+
+    function editar(i){const p=productos[i];document.getElementById('editIndex').value=i;document.getElementById('nombre').value=p.nombre;document.getElementById('categoria').value=p.categoria||'';document.getElementById('precio').value=fmtDecimal(p.precio||0);updatePrecioHint(false);document.getElementById('stock').value=p.stock;document.getElementById('imagen').value=p.imagen||'';document.getElementById('descripcion').value=p.descripcion||'';previewImagen();window.scrollTo({top:0,behavior:'smooth'})}
+    function borrar(i){if(!confirm('¿Eliminar producto?'))return;productos.splice(i,1);saveLS();render();fillFilters();toast('Eliminado')}
+    function vaciar(){if(!confirm('¿Vaciar catálogo completo?'))return;catalogos[selCat].productos=[];linkProductos();saveLS();render();fillFilters();toast('Catálogo vaciado')}
+
+    // ---------- Export/Import ----------
+    function exportarJSON(){const blob=new Blob([JSON.stringify(productos,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(catalogos[selCat].nombre||'catalogo')+'.json';a.click()}
+    function exportarTodos(){const blob=new Blob([JSON.stringify(catalogos,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='catalogos.json';a.click()}
+    function exportarCSV(){const cols=['nombre','categoria','precio','stock','imagen','descripcion'];const rows=[cols].concat(productos.map(p=>cols.map(k=>String(p[k]??''))));const csv=rows.map(r=>r.map(v=>`"${v.replace(/"/g,'""')}`+`"`).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(catalogos[selCat].nombre||'catalogo')+'.csv';a.click()}
+    document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const data=JSON.parse(ev.target.result); if(Array.isArray(data)){ // importa como productos del catálogo actual
+            catalogos[selCat].productos=(data||[]).map(p=>({nombre:sanitizeStr(p.nombre),categoria:sanitizeStr(p.categoria),precio:Math.max(0,Number(p.precio)||0),stock:Math.max(0,parseInt(p.stock)||0),imagen:sanitizeStr(p.imagen),descripcion:sanitizeStr(p.descripcion)}));
+            linkProductos(); saveLS(); render(); fillFilters(); toast('Catálogo importado')
+          } else if(Array.isArray(data?.productos) || Array.isArray(data?.[0]?.productos)){
+            // importa estructura de catálogos completa
+            const arr = Array.isArray(data?.productos) ? [data] : data;
+            catalogos = arr.map(c=>({nombre:sanitizeStr(c.nombre)||'Catálogo', productos: Array.isArray(c.productos)?c.productos:[]}));
+            selCat=0; linkProductos(); saveLS(); fillCatalogSel(); render(); fillFilters(); toast('Catálogos importados')
+          } else { toast('JSON inválido') }
+        }catch{toast('JSON inválido')}};r.readAsText(f); e.target.value=''});
+
+    // ---------- Imagen / Modal ----------
+    function previewImagen(){const u=safeUrl(document.getElementById('imagen').value.trim());const img=document.getElementById('prevImg');const ph=document.getElementById('prevPh');const msg=document.getElementById('prevMsg');if(!u){img.style.display='none';ph.style.display='grid';msg.textContent='';return}img.onload=()=>{ph.style.display='none';img.style.display='block';msg.textContent='Vista previa'};img.onerror=()=>{img.style.display='none';ph.style.display='grid';msg.textContent='No se pudo cargar'};img.referrerPolicy='no-referrer';img.src=u}
+    document.getElementById('imagen').addEventListener('input',previewImagen);
+
+    function showModal(i){const p=productos[i];const m=document.getElementById('modal');const t=document.getElementById('m_title');const im=document.getElementById('m_img');const meta=document.getElementById('m_meta');const d=document.getElementById('m_desc');t.textContent=p.nombre||'';meta.textContent=`${p.categoria||'—'} • ${fmtCurrency(p.precio)} • ${humanName(p.precio,lang)} • Stock: ${Number(p.stock||0)}`;d.textContent=p.descripcion||'';const u=safeUrl(p.imagen);if(u){im.referrerPolicy='no-referrer';im.src=u}else{im.removeAttribute('src')}m.style.display='flex';m.setAttribute('aria-hidden','false')}
+    document.getElementById('closeModal').addEventListener('click',()=>{const m=document.getElementById('modal');m.style.display='none';m.setAttribute('aria-hidden','true')});
+    document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal'){e.currentTarget.style.display='none';e.currentTarget.setAttribute('aria-hidden','true')}});
+
+    // ---------- Búsqueda / Orden ----------
+    document.getElementById('buscar').addEventListener('input',()=>render());
+    document.getElementById('filtraCategoria').addEventListener('change',()=>render());
+    document.querySelectorAll('th.sort').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(sortBy===k){sortDir*=-1}else{sortBy=k;sortDir=1}document.querySelectorAll('th.sort .arrow').forEach(a=>a.textContent='↕');th.querySelector('.arrow').textContent=sortDir>0?'↑':'↓';render()}));
+
+    // ---------- Categorías / idioma ----------
+    document.getElementById('addCat').addEventListener('click',()=>{const v=sanitizeStr(document.getElementById('newCat').value);if(!v)return;DEFAULT_CATS.push(v);document.getElementById('newCat').value='';fillCats();document.getElementById('categoria').value=v;toast('Categoría añadida')});
+    document.getElementById('lang').addEventListener('change',e=>{lang=e.target.value;applyI18n();render();updatePrecioHint(true)});
+
+    // ---- Eventos barra de catálogos ----
+    document.getElementById('renCatalog').addEventListener('click',renameCatalog);
+    document.getElementById('delCatalog').addEventListener('click',deleteCatalog);
+    document.getElementById('catalogoSel').addEventListener('change',e=>selectCatalog(e.target.value));
+
+    // ---- Utils events ----
+    document.getElementById('btnAddCat').addEventListener('click',()=>{
+      const name=prompt('Nombre del nuevo catálogo');
+      if(name===null) return; // cancelado
+      const v=sanitizeStr(name);
+      if(!v){toast('Nombre inválido');return}
+      addCatalog(v);
+    });
+    document.getElementById('btnExCat').addEventListener('click',exportarJSON);
+    document.getElementById('btnExAll').addEventListener('click',exportarTodos);
+    document.getElementById('t_export_csv_btn').addEventListener('click',exportarCSV);
+    document.getElementById('btnVaciar').addEventListener('click',vaciar);
+
+    // ---------- Init ----------
+    applyI18n();
+    loadLS();
+    fillCatalogSel();
+    setupPrecioField();
+    render();
+    fillFilters();
+    cargarRemoto(); // opcional
+  </script>
 </body>
 </html>
