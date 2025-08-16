@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Emperatriz 👑🌹</title>
+<meta name="description" content="Catálogo de La Emperatriz">
+<meta property="og:title" content="La Emperatriz">
+<meta property="og:description" content="Catálogo de La Emperatriz">
+<meta property="og:image" content="">
+<style>
+:root{--pink:#e91e63;--pink-2:#c2185b;--bg:#ffeef5;--ink:#101114}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:500 15px/1.35 system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:var(--pink);color:#fff}
+.bar{max-width:1100px;margin:auto;padding:12px 16px;display:grid;gap:10px}
+.brand{font-weight:900;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+input,select,button{font:inherit}
+.input,select{border:1px solid #f8bbd0;background:#fff;border-radius:10px;padding:10px 12px;outline:0}
+select{min-width:140px}
+.btn{border:0;border-radius:12px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--pink);font-weight:800}
+.btn.primary{background:#fff;color:var(--pink)}.btn.ghost{background:transparent;color:#fff;border:1px solid #fff}
+.pillBtn{border:2px solid #f8bbd0;background:#fff;color:var(--pink);border-radius:999px;padding:8px 12px;font-weight:900}
+main{max-width:1100px;margin:auto;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:960px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1240px){.grid{grid-template-columns:repeat(4,1fr)}}
+card{position:relative;display:grid;gap:8px;background:#fff;border:2px solid #f8bbd0;border-radius:16px;padding:10px;transition:transform .15s,box-shadow .15s;cursor:pointer}
+card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(16,17,20,.08)}
+.img{border-radius:12px;overflow:hidden;background:#fff}
+.img img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.name{font-weight:900}
+.cat{font-size:12px;opacity:.7}
+.price{font-weight:900}
+.badges{position:absolute;left:10px;top:10px;display:flex;gap:6px}
+.badge{background:#fff;color:var(--pink);border-radius:999px;padding:4px 10px;border:1px solid #f8bbd0;font-size:12px}
+.actions{display:flex;gap:8px}
+.actions .btn{flex:1}
+.topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.count{opacity:.8}
+#empty{display:none;border:2px dashed #f8bbd0;background:#fff;border-radius:16px;padding:18px;text-align:center}
+#toast{position:fixed;right:14px;bottom:14px;display:grid;gap:8px;z-index:40}
+.toast{background:#101114;color:#fff;border-radius:12px;padding:10px 12px}
+#modal{position:fixed;inset:0;background:rgba(16,17,20,.45);display:grid;place-items:center;z-index:50;backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s ease}
+#modal.open{opacity:1;pointer-events:auto}
+.mbox{width:min(96vw,900px);max-height:92vh;overflow:auto;background:#fff;border:2px solid #f8bbd0;border-radius:16px;padding:14px;display:grid;gap:10px;transform:translateY(10px);transition:transform .2s ease}
+#modal.open .mbox{transform:translateY(0)}
+.cartPanel{position:fixed;inset:0;align-items:stretch;justify-content:flex-end;z-index:60;background:rgba(0,0,0,.35);display:flex;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.cartPanel.open{opacity:1;pointer-events:auto}
+.cartBox{width:min(96vw,420px);height:100vh;background:#fff;border-left:2px solid #f8bbd0;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:12px;transform:translateX(20px);transition:transform .2s ease}
+.cartPanel.open .cartBox{transform:translateX(0)}
+.cartItems{overflow:auto;display:grid;gap:8px}
+.cartRow{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center}
+.cartRow img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #f8bbd0}
+.wish{position:absolute;right:12px;top:12px;background:#fff;border:1px solid #f8bbd0;border-radius:999px;padding:6px 8px;font-weight:900;color:var(--pink)}
+.skel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:960px){.skel{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1240px){.skel{grid-template-columns:repeat(4,1fr)}}
+.skel .b{height:220px;border-radius:16px;background:linear-gradient(90deg,#fff 0%,#f9cfe0 50%,#fff 100%);background-size:200% 100%;animation:sh 1s linear infinite;border:2px solid #f8bbd0}
+@keyframes sh{0%{background-position:0 0}100%{background-position:200% 0}}
+.more{height:1px}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="row">
+      <div class="brand" id="brand">🌹👑 La Emperatriz</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+        <button class="pillBtn" id="openFav" aria-label="Abrir favoritos" aria-haspopup="dialog" aria-controls="fav">♥ <span id="favCount">0</span></button>
+        <button class="pillBtn" id="openCart" aria-label="Abrir carrito" aria-haspopup="dialog" aria-controls="cart">Carrito <span id="cartCount">0</span></button>
+      </div>
+    </div>
+    <div class="row topbar">
+      <input id="q" class="input" placeholder="Buscar..." autocomplete="off" list="sugs" aria-label="Buscar productos">
+      <datalist id="sugs"></datalist>
+      <select id="cat" aria-label="Filtrar por categoría"></select>
+      <select id="ord" aria-label="Ordenar resultados">
+        <option value="rel">Relevancia</option>
+        <option value="pa">Precio ↑</option>
+        <option value="pd">Precio ↓</option>
+        <option value="az">A→Z</option>
+      </select>
+      <select id="cur" aria-label="Moneda">
+        <option>ARS</option>
+        <option>USD</option>
+        <option>EUR</option>
+      </select>
+      <div class="count" id="count">—</div>
+    </div>
+  </div>
+</header>
+<main>
+  <div id="empty">Catálogo vacío</div>
+  <div id="skeleton" class="skel"></div>
+  <div class="grid" id="grid"></div>
+  <div id="more" class="more"></div>
+</main>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+  <div class="mbox">
+    <div class="mhd"><div id="mtitle" style="font-weight:900"></div><button id="mclose" class="btn" aria-label="Cerrar detalle">✕</button></div>
+    <div class="mgal"><img id="mimg" alt=""></div>
+    <div id="mprice" class="price"></div>
+    <div id="minfo" style="font-size:13px;opacity:.8"></div>
+    <div id="mdesc"></div>
+    <div class="actions"><button id="addFromModal" class="btn primary" aria-label="Agregar al carrito">Agregar al carrito</button></div>
+  </div>
+</div>
+<div class="cartPanel" id="cart">
+  <div class="cartBox">
+    <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:900">Tu carrito</div><button id="closeCart" class="btn" aria-label="Cerrar carrito">✕</button></div>
+    <div class="cartItems" id="cartItems"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:900">Total</div><div id="cartTotal" style="font-weight:900"></div></div>
+    <div style="display:grid;gap:8px">
+      <input id="wa" class="input" placeholder="WhatsApp destino (54911...)" aria-label="Número de WhatsApp" />
+      <div style="display:flex;gap:8px">
+        <button id="checkout" class="btn primary" style="flex:1" aria-label="Finalizar por WhatsApp">WhatsApp</button>
+        <button id="payMP" class="btn" style="flex:1" aria-label="Pagar con MercadoPago">MP</button>
+        <button id="payStripe" class="btn" style="flex:1" aria-label="Pagar con Stripe">Stripe</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cartPanel" id="fav">
+  <div class="cartBox">
+    <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:900">Tus favoritos</div><button id="closeFav" class="btn" aria-label="Cerrar favoritos">✕</button></div>
+    <div class="cartItems" id="favItems"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><div style="opacity:.8">Total ítems</div><div id="favTotal" style="font-weight:900"></div></div>
+    <div style="display:grid;gap:8px"><button id="favToCart" class="btn primary" aria-label="Agregar favoritos al carrito">Añadir todos al carrito</button></div>
+  </div>
+</div>
+<div id="toast" aria-live="polite"></div>
+<script>
+const $=q=>document.querySelector(q),$$=q=>Array.from(document.querySelectorAll(q));
+const QS=new URLSearchParams(location.search);
+const SRC=QS.get('src')||'catalogo.json';
+const SYNC=QS.get('sync');
+const CUR_KEY='pub_cur', WISH_KEY='pub_wish', CART_KEY='pub_cart', QHIST_KEY='pub_qhist', WA_KEY='pub_wa';
+let CUR=localStorage.getItem(CUR_KEY)||QS.get('cur')||'ARS';
+let RATES={ARS:+(QS.get('r_ARS')||1),USD:+(QS.get('r_USD')||1),EUR:+(QS.get('r_EUR')||1)};
+let DATA=[],IDX=new Map(),CART=[],WISH=new Set(),SEARCH='',CAT='',ORD='rel',WA=localStorage.getItem(WA_KEY)||QS.get('wa')||'';
+let FILTERED=[],VIS=0,LIMIT=20,OBS,prevFocus,trapper;
+function money(v){const base=+v||0;const rate=RATES[CUR]||1;return new Intl.NumberFormat('es-AR',{style:'currency',currency:CUR}).format(base*rate)}
+function setBrand(){const b=QS.get('brand')||'🌹👑 La Emperatriz';document.title=b;$('#brand').textContent=b}
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;$('#toast').append(el);setTimeout(()=>{el.style.opacity=.0;setTimeout(()=>el.remove(),220)},1200)}
+function safe(s){return String(s??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function setMeta(k,v){let m=document.querySelector(`meta[name="${k}"]`);if(!m){m=document.createElement('meta');m.setAttribute('name',k);document.head.appendChild(m)}m.setAttribute('content',v)}
+function setOg(p,v){let m=document.querySelector(`meta[property="${p}"]`);if(!m){m=document.createElement('meta');m.setAttribute('property',p);document.head.appendChild(m)}m.setAttribute('content',v)}
+function buildSkeleton(n){const sk=$('#skeleton');sk.innerHTML='';for(let i=0;i<n;i++){const b=document.createElement('div');b.className='b';sk.append(b)}}
+// --- IndexedDB (prefs: {cur, wish[]}) ---
+let DB=null;function idb(){return new Promise((res,rej)=>{if(DB)return res(DB);const r=indexedDB.open('emperatriz',1);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('prefs'))db.createObjectStore('prefs')};r.onsuccess=()=>{DB=r.result;res(DB)};r.onerror=()=>rej(r.error)})}
+async function prefsLoad(){try{const db=await idb();return await new Promise(ok=>{const tx=db.transaction('prefs','readonly');const req=tx.objectStore('prefs').get('main');req.onsuccess=()=>ok(req.result||null);req.onerror=()=>ok(null)})}catch{return null}}
+async function prefsSave(){const obj={cur:CUR,wish:[...WISH]};try{const db=await idb();await new Promise(ok=>{const tx=db.transaction('prefs','readwrite');tx.objectStore('prefs').put(obj,'main');tx.oncomplete=()=>ok()})}catch{}localStorage.setItem(WISH_KEY,JSON.stringify([...WISH]));localStorage.setItem(CUR_KEY,CUR);syncPush()}
+// --- Optional backend sync ---
+async function syncLoad(){if(!SYNC)return;try{const r=await fetch(SYNC,{cache:'no-store'});if(r.ok){const o=await r.json();if(o.cur)CUR=o.cur;if(Array.isArray(o.wish))WISH=new Set(o.wish)}}catch{}}
+function syncPush(){if(!SYNC)return;fetch(SYNC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cur:CUR,wish:[...WISH]})}).catch(()=>{})}
+async function load(){setBrand();$('#wa').value=WA;$('#cur').value=CUR;$('#cur').onchange=e=>{CUR=e.target.value;renderReset();prefsSave()};$('#q').oninput=e=>{SEARCH=e.target.value.trim().toLowerCase();saveQuery(e.target.value);renderReset()};$('#cat').onchange=e=>{CAT=e.target.value;renderReset()};$('#ord').onchange=e=>{ORD=e.target.value;renderReset()};$('#openCart').onclick=openCart;$('#closeCart').onclick=closeCart;$('#checkout').onclick=checkout;$('#payMP').onclick=payMP;$('#payStripe').onclick=payStripe;$('#openFav').onclick=openFav;$('#closeFav').onclick=closeFav;$('#favToCart').onclick=()=>{WISH.forEach(id=>{const a=IDX.get(id);if(a)add(id)});toast('Favoritos añadidos');openCart()};window.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeCart();closeFav()}});cartLoad();wishLoad();qhistLoad();buildSkeleton(8);await syncLoad();const pf=await prefsLoad();if(pf){if(pf.cur)CUR=pf.cur;$('#cur').value=CUR;if(Array.isArray(pf.wish))WISH=new Set(pf.wish)}updateFavCount();try{const r=await fetch(SRC+'?ts='+Date.now(),{cache:'no-store'});if(r.ok){const j=await r.json();apply(j)}else fallback()}catch{fallback()}buildCats();renderReset();const pid=QS.get('p');if(pid)openModal(pid)}
+function fallback(){try{let j=JSON.parse(localStorage.getItem('admLite_catalogo')||localStorage.getItem('adm_articulos')||'[]');apply(j)}catch{}}
+function norm(p,i){const prices=p.precios||p.prices;const base=prices?+(prices[CUR]||prices.ARS||p.precio||p.price||0):+(p.precio||p.price||0);return{id:p.id||p.slug||String(i),nombre:p.nombre||'',categoria:p.categoria||'',precio:base,precioOferta:+(p.precioOferta||p.priceSale||0),isNew:!!(p.nuevo||p.isNew),stock:Math.max(0,parseInt(p.stock||0)),imagen:p.imagen||p.imageUrl||'',descripcion:p.descripcion||''}}
+function apply(j){let arr=Array.isArray(j)?j:(j.articulos||j.items||[]);DATA=arr.map(norm);IDX.clear();DATA.forEach(a=>IDX.set(a.id,a))}
+function buildCats(){const s=$('#cat');const set=new Set(DATA.map(a=>a.categoria).filter(Boolean));s.innerHTML='<option value="">Todas</option>'+[...set].sort().map(c=>`<option>${safe(c)}</option>`).join('')}
+function filter(){let a=DATA.slice();if(SEARCH)a=a.filter(x=>x.nombre.toLowerCase().includes(SEARCH)||x.descripcion.toLowerCase().includes(SEARCH)||x.categoria.toLowerCase().includes(SEARCH));if(CAT)a=a.filter(x=>x.categoria===CAT);if(ORD==='pa')a.sort((x,y)=>x.precio-y.precio);if(ORD==='pd')a.sort((x,y)=>y.precio-x.precio);if(ORD==='az')a.sort((x,y)=>(x.nombre>y.nombre?1:-1));return a}
+function renderReset(){FILTERED=filter();VIS=0;$('#grid').innerHTML='';$('#empty').style.display=FILTERED.length?'none':'block';$('#count').textContent=`${FILTERED.length}/${DATA.length}`;$('#skeleton').style.display='none';renderMore();if(OBS)OBS.disconnect();OBS=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting))renderMore()});OBS.observe($('#more'))}
+function renderMore(){const g=$('#grid');const end=Math.min(FILTERED.length,VIS+LIMIT);for(let i=VIS;i<end;i++)draw(FILTERED[i]);VIS=end}
+function badgeList(a){const bs=[];if(a.isNew)bs.push('Nuevo');if(a.precioOferta&&a.precioOferta<a.precio)bs.push('Oferta');if(a.stock>0&&a.stock<=5)bs.push('Últimos '+a.stock);if(a.stock===0)bs.push('Agotado');return bs}
+function draw(a){const el=document.createElement('card');const imgBox=document.createElement('div');imgBox.className='img';const im=document.createElement('img');im.src=a.imagen||PLACE;im.alt=a.nombre;im.onerror=()=>im.src=PLACE;imgBox.append(im);const badges=document.createElement('div');badges.className='badges';badgeList(a).forEach(t=>{const b=document.createElement('div');b.className='badge';b.textContent=t;badges.append(b)});const nm=document.createElement('div');nm.className='name';nm.textContent=a.nombre;const cat=document.createElement('div');cat.className='cat';cat.textContent=a.categoria;const price=document.createElement('div');price.className='price';price.textContent=money(a.precioOferta&&a.precioOferta<a.precio?a.precioOferta:a.precio);const actions=document.createElement('div');actions.className='actions';const b1=document.createElement('button');b1.className='btn primary';b1.textContent='Comprar';b1.setAttribute('aria-label','Agregar al carrito');b1.onclick=(ev)=>{ev.stopPropagation();add(a.id)};const b2=document.createElement('button');b2.className='btn';b2.textContent='Ver';b2.setAttribute('aria-label','Ver detalle');b2.onclick=(ev)=>{ev.stopPropagation();openModal(a.id)};actions.append(b1,b2);const wish=document.createElement('button');wish.className='wish';const on=()=>{const liked=WISH.has(a.id);wish.textContent=liked?'♥':'♡';wish.setAttribute('aria-pressed',liked)};on();wish.setAttribute('aria-label','Añadir a favoritos');wish.onclick=(ev)=>{ev.stopPropagation();toggleWish(a.id);on()};el.append(imgBox,badges,wish,nm,cat,price,actions);el.onclick=()=>openModal(a.id);$('#grid').append(el)}
+function openModal(id){const a=IDX.get(id);if(!a)return;$('#mtitle').textContent=a.nombre;$('#mimg').src=a.imagen||PLACE;$('#mimg').alt=a.nombre;$('#mimg').onerror=()=>($('#mimg').src=PLACE);$('#mprice').textContent=money(a.precioOferta&&a.precioOferta<a.precio?a.precioOferta:a.precio);$('#minfo').textContent=`${a.categoria||'—'} • Stock: ${a.stock}`;$('#mdesc').textContent=a.descripcion||'';$('#addFromModal').onclick=()=>{add(id);openCart()};history.pushState({},'',setParam('p',id));setMeta('description',a.descripcion||'');setOg('og:title',a.nombre);setOg('og:description',a.descripcion||'');setOg('og:image',a.imagen||'');prevFocus=document.activeElement;$('#modal').classList.add('open');$('#mclose').onclick=closeModal;$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};focusTrap(true)}
+function closeModal(){$('#modal').classList.remove('open');history.pushState({},'',setParam('p',null));setMeta('description','Catálogo de La Emperatriz');setOg('og:title','La Emperatriz');setOg('og:description','Catálogo de La Emperatriz');setOg('og:image','');focusTrap(false)}
+function focusTrap(on){const first=$('#mclose'), last=$('#addFromModal');if(on){first.focus();trapper=(e)=>{if(e.key!=='Tab')return;const f=document.activeElement;if(e.shiftKey&&f===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&f===last){e.preventDefault();first.focus()}};document.addEventListener('keydown',trapper)}else{document.removeEventListener('keydown',trapper);if(prevFocus)prevFocus.focus()}}
+function setParam(k,v){const u=new URL(location.href);if(v==null)u.searchParams.delete(k);else u.searchParams.set(k,v);return u.toString()}
+function cartLoad(){try{CART=JSON.parse(localStorage.getItem(CART_KEY)||'[]')||[]}catch{CART=[]}updateCart()}
+function cartSave(){localStorage.setItem(CART_KEY,JSON.stringify(CART));updateCart()}
+function unitPrice(a){return (a.precioOferta&&a.precioOferta<a.precio)?a.precioOferta:a.precio}
+function add(id){const it=CART.find(x=>x.id===id);if(it)it.qty=Math.min(999,it.qty+1);else CART.push({id,qty:1});cartSave();toast('Agregado')}
+function remove(id){CART=CART.filter(x=>x.id!==id);cartSave()}
+function total(){return CART.reduce((s,it)=>{const a=IDX.get(it.id);return s+((unitPrice(a)||0)*it.qty)},0)}
+function updateCart(){const n=CART.reduce((s,it)=>s+it.qty,0);$('#cartCount').textContent=n}
+function renderCart(){const box=$('#cartItems');box.innerHTML='';if(!CART.length){box.innerHTML='<div style="opacity:.7">Vacío</div>'}
+CART.forEach(it=>{const a=IDX.get(it.id);if(!a)return;const row=document.createElement('div');row.className='cartRow';const im=document.createElement('img');im.src=a.imagen||PLACE;im.alt=a.nombre;im.onerror=()=>im.src=PLACE;const meta=document.createElement('div');meta.innerHTML=`<div style="font-weight:900">${safe(a.nombre)}</div><div>${money(unitPrice(a))}</div>`;const qty=document.createElement('div');const minus=document.createElement('button');minus.className='btn';minus.textContent='–';minus.onclick=()=>{it.qty=Math.max(1,it.qty-1);cartSave();renderCart()};const plus=document.createElement('button');plus.className='btn';plus.textContent='+';plus.onclick=()=>{it.qty=Math.min(999,it.qty+1);cartSave();renderCart()};const rem=document.createElement('button');rem.className='btn ghost';rem.textContent='Eliminar';rem.onclick=()=>{remove(a.id);renderCart()};const span=document.createElement('span');span.style.margin='0 6px';span.textContent=it.qty;qty.append(minus,span,plus,rem);row.append(im,meta,qty);box.append(row)});$('#cartTotal').textContent=money(total())}
+function openCart(){renderCart();$('#cart').classList.add('open')}
+function closeCart(){$('#cart').classList.remove('open')}
+function checkout(){WA=($('#wa').value||'').replace(/\D/g,'');if(!CART.length){toast('Carrito vacío');return}if(!WA){toast('Ingresa WhatsApp');$('#wa').focus();return}localStorage.setItem(WA_KEY,WA);const items=CART.map(it=>{const a=IDX.get(it.id);return `• ${it.qty}x ${a?.nombre} – ${money(unitPrice(a)||0)}`}).join('\n');const text=encodeURIComponent((QS.get('brand')||'La Emperatriz')+" – Pedido online\n"+items+"\nTotal: "+money(total()));const url=`https://wa.me/${WA}?text=${text}`;window.open(url,'_blank')}
+function payMP(){toast('MP: conecta tu backend')}
+function payStripe(){toast('Stripe: conecta tu backend')}
+function wishLoad(){try{WISH=new Set(JSON.parse(localStorage.getItem(WISH_KEY)||'[]'))}catch{WISH=new Set()}updateFavCount()}
+function wishSave(){localStorage.setItem(WISH_KEY,JSON.stringify([...WISH]));updateFavCount();prefsSave()}
+function toggleWish(id){if(WISH.has(id))WISH.delete(id);else WISH.add(id);wishSave();toast('Favoritos actualizado')}
+function updateFavCount(){$('#favCount').textContent=WISH.size}
+function renderFav(){const box=$('#favItems');box.innerHTML='';if(!WISH.size){box.innerHTML='<div style="opacity:.7">Sin favoritos</div>'}let n=0;WISH.forEach(id=>{const a=IDX.get(id);if(!a)return;const row=document.createElement('div');row.className='cartRow';const im=document.createElement('img');im.src=a.imagen||PLACE;im.alt=a.nombre;im.onerror=()=>im.src=PLACE;const meta=document.createElement('div');meta.innerHTML=`<div style="font-weight:900">${safe(a.nombre)}</div><div>${money(unitPrice(a))}</div>`;const act=document.createElement('div');const addb=document.createElement('button');addb.className='btn';addb.textContent='Agregar';addb.onclick=()=>add(id);const rem=document.createElement('button');rem.className='btn ghost';rem.textContent='Quitar';rem.onclick=()=>{WISH.delete(id);wishSave();renderFav()};act.append(addb,rem);row.append(im,meta,act);box.append(row);n++});$('#favTotal').textContent=n}
+function openFav(){renderFav();$('#fav').classList.add('open')}
+function closeFav(){$('#fav').classList.remove('open')}
+function saveQuery(q){const v=q.trim();if(!v)return;let arr=[];try{arr=JSON.parse(localStorage.getItem(QHIST_KEY)||'[]')}catch{arr=[]}arr=[v,...arr.filter(x=>x!==v)].slice(0,8);localStorage.setItem(QHIST_KEY,JSON.stringify(arr));qhistLoad()}
+function qhistLoad(){let arr=[];try{arr=JSON.parse(localStorage.getItem(QHIST_KEY)||'[]')}catch{arr=[]}$('#sugs').innerHTML=arr.map(x=>`<option value="${safe(x)}">`).join('')}
+function onPop(){const u=new URL(location.href);const p=u.searchParams.get('p');if(!p)closeModal();else openModal(p)}
+window.addEventListener('popstate',onPop);
+// placeholder image
+const PLACE="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23ffeef5'/%3E%3C/svg%3E";
+load();
+</script>
+</body>
+</html>
