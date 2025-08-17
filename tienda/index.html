@@ -197,6 +197,17 @@ window.addEventListener('popstate',onPop);
 // placeholder image
 const PLACE="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23ffeef5'/%3E%3C/svg%3E";
 load();
+<script>
+async function loadCatalog() {
+  const res = await fetch('./data/catalogo.json?_=' + Date.now());
+  if (!res.ok) {
+    console.error("Error al cargar JSON:", res.status);
+    return;
+  }
+  const data = await res.json();
+  console.log("Catálogo cargado:", data);
+}
+loadCatalog();
 </script>
 </body>
 </html>
