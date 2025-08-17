@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "nombre": "Collar imperial",
+    "precio": 1200,
+    "img": "https://via.placeholder.com/200",
+    "descripcion": "Un collar de ejemplo para probar el catálogo."
+  }
+]
