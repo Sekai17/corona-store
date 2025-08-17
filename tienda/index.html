@@ -134,7 +134,7 @@ card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(16,17,20,.08)}
 <script>
 const $=q=>document.querySelector(q),$$=q=>Array.from(document.querySelectorAll(q));
 const QS=new URLSearchParams(location.search);
-const SRC = QS.get('src') || 'https://raw.githubusercontent.com/Sekai17/corona-store/refs/heads/main/catalogo.json?ts='+Date.now();
+const SRconst SRC = QS.get('src') || 'https://raw.githubusercontent.com/Sekai17/corona-store/main/catalogo.json?ts=' + Date.now();
 const SYNC=QS.get('sync');
 const CUR_KEY='pub_cur', WISH_KEY='pub_wish', CART_KEY='pub_cart', QHIST_KEY='pub_qhist', WA_KEY='pub_wa';
 let CUR=localStorage.getItem(CUR_KEY)||QS.get('cur')||'ARS';
