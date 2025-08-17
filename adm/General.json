@@ -1,0 +1,14 @@
+[
+  {
+    "nombre": "Collar imperial",
+    "precio": 1200,
+    "img": "https://via.placeholder.com/200",
+    "descripcion": "Un collar de ejemplo para pruebas"
+  },
+  {
+    "nombre": "Anillo real",
+    "precio": 850,
+    "img": "https://via.placeholder.com/200",
+    "descripcion": "Un anillo digno de la realeza"
+  }
+]
