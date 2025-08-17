@@ -1,0 +1,82 @@
+name: Publish Catalog
+
+on:
+  push:
+    paths:
+      - "adm/inbox/**/*.json"   # dispara solo si cambian JSON aquí
+  workflow_dispatch: {}         # permitir correr manual
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure jq is available
+        run: |
+          if ! command -v jq >/dev/null; then
+            sudo apt-get update -y && sudo apt-get install -y jq
+          fi
+
+      - name: Fail if no JSON in adm/inbox
+        run: |
+          shopt -s nullglob
+          FILES=(adm/inbox/**/*.json adm/inbox/*.json)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No hay JSON en adm/inbox/"
+            exit 1
+          fi
+          printf "%s\n" "${FILES[@]}"
+
+      - name: Merge & normalize to catalogo.json
+        run: |
+          shopt -s nullglob
+          FILES=(adm/inbox/**/*.json adm/inbox/*.json)
+
+          # Une todo a un solo array y sanea campos
+          jq -s '
+            map(
+              if type=="array" then .
+              elif type=="object" and has("productos") then .productos
+              else [.] end
+            ) | add
+            | map(
+                .precio |= (try (if . < 0 then 0 else . end) catch 0) |
+                .stock  |= (try (if . < 0 then 0 else . end) catch 0) |
+                .nombre |= (tostring) |
+                .categoria |= (try tostring catch "") |
+                .imagen |= (try tostring catch "") |
+                .descripcion |= (try tostring catch "")
+              )
+          ' "${FILES[@]}" > catalogo.new.json
+
+          if [ -f catalogo.json ]; then
+            # Merge por clave (id | slug | nombre)
+            jq -s '
+              def key: (.id // .slug // .nombre // "");
+              def toMap(a): a | map({ (key): . }) | add;
+              def toArr(m): m | to_entries | map(.value);
+
+              toMap(.[0]) as $old |
+              toMap(.[1]) as $new |
+              ($old + $new) | toArr
+            ' catalogo.json catalogo.new.json > catalogo.merged.json
+            mv catalogo.merged.json catalogo.json
+          else
+            mv catalogo.new.json catalogo.json
+          fi
+
+          date +%s > catalogo.version
+
+      - name: Commit & push
+        run: |
+          git config user.name  "catalog-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add catalogo.json catalogo.version
+          git commit -m "chore: publish catalog $(date -u +%F:%T)" || echo "Nada para commitear"
+          git push || true
+
